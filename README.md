@@ -1,124 +1,16 @@
-## GeoTag for macOS -- macOS 26 or later for GeoTag 6
+## OmniTag 
 
-GeoTag is a free OS X single window application that allows you to update image
-metadata with geolocation tags by selecting one or more images then panning and
-zooming within a a map to the place the image was recorded. Clicking on the map
-will add the location to the selected photos.  Clicking on a new location will
-change the geolocation for the selected photos.  Zoom in on the map and fine
-tune the location with a click.  The built in ExifTool utility is used to write
-location data to the images when you save your changes.  ExifTool only modifies
-image metadata -- your image pixels are not touched.
+OmniTag is a fork of GeoTag that I made to help me with adding metadata to my film scans. I work with a large mix of digital and film photos in iCloud, and edit them with Photomator. 
 
-See <http://exiftool.org> for information about ExifTool.
-**ExifTool is built-in to GeoTag.**
+It takes the interface of GeoTag and adds new modes for setting timestamp and camera make/model/film stock metadata. It also adds quality of life features for automatically populating film scan location/timestamp metadata with the nearest neighbouring photos (in album order). This lets you transfer the accurate metadata from your digital photos to your film photos super quickly.
 
-Current versions of GeoTag can also update geolocation information in images
-from your Photos Library.  Apple's Photos framework is used instead of
-ExifTool for such updates.  The original image file is not changed.
+### Feature List
 
-### Version requirements
+- Film metadata editing (Camera make/model/lens/film stock/iso)
+- Adds a mode selector between Location / Time / Film (with a mode aware clipboard)
+- Nearest neighbour metadata fill
+- Various optimizations for reading/writing film metadata (beyond timestamp/location) quickly
 
-- GeoTag 6.0+ requires macOS 26 (Tahoe) or later
-- GeoTag 5.7 requires macOS 15 (Sequoia) or later.
-- GeoTag 5.2 thru 5.6 requires macOS 14 (Sonoma) or later.
-- Use GeoTag 5.1 if running on macOS Ventura.
-- Those running earlier versions of macOS can use GeoTag version 4.15.
+### GeoTag
 
-## GeoTag 6.1
-
-### Updates
-
-- Thumbnail image scaling (pull request from skatsubo on github)
-- Treat sidecar file metadata as overrrides to image metadata, not a complete
-  replacement. Some image editors apparently create sidecar files with
-  only differences instead of the complete set of metadata.
-- Add a settings option to respect the GPSStatus tag in GPS Metadata.
-  GeoTag will ignore GPSStatus unless the reported latitude and longitude
-  are 0.
-- exiftool 13.59
-
-### Bug Fixes
-
-- Do not report location changes when a map control is clicked.
-
-### Known issues
-
-- sidecar files named using the darktable/nitro format (file.ext.xmp) are not
-  recognized.
-- Images from the Photos Library can not always be displayed. This appears
-  to be an Apple issue that has been reported many times over the years. No
-  known workaround.
-- Undo/Redo are disabled in text and search fields.
-- When showing pins for all selected locations the red (most selected) pin
-  may be hidden by the pin of another location near by unless the zoom level
-  is such that both locations are slightly separated on the map.
-- when changing the selection to an image that has a location some portion
-  of the pin may be off the map view.  In an extreme case only the point of
-  the pin is on the map and can not be seen. If you do not see a pin when
-  you expect to zoom out slightly.
-- Double clicking to zoom in or option-double clicking to zoom out will
-  move the pins of selected items. Deselect all items or use a different
-  zoom method to workaround this issue.
-- The 3D button does not work when the map is in the image or one of the
-  hybrid modes.
-
----
-
-### Operating Instructions:
-
-*See <https://www.snafu.org/GeoTag/GeoTagHelp/> for more information.*
-
-Run Program.  Use the Open command from the menu or ⌘O to select files to
-modify. You can also drag files from the finder into the table on the left side
-of the application window.  Or you may select images from your Photos
-Library. File names shown in a light grey color are not recognized as valid
-image files or are disabled for other reasons.  Such files can not be
-modified. Dragging or opening a folder will add all the files in the folder
-and any subfolders.
-
-Select one or more images. When selecting multiple images one of the
-images is considered the "most selected". The name of the most selected
-image is shown in yellow using a bolder font.  The thumbnail of the most
-selected image is displayed in the image well (upper right portion of the
-window). Its location (if any) is marked on the map.
-
-Click on the map to set or change the location of all selected images. Existing
-location can be changed by clicking on the desired location. Hitting the delete
-key will remove location information from all selected images.  You can
-Undo/Redo image location changes.
-
-Double click the map to zoom in. Option-double click to zoom out. Or use
-pinch gestures to zoom in and out if using a touch pad.
-
-Five map styles --- Standard, Imagery, Hybrid, Standard with traffic, and
-Hybrid with traffic --- are supported. Right click on the map to select
-the desired map style. If you find yourself working in a specific area of a
-map you can save the location and zoom level by right clicking on the map
-and selecting *Save map location*.  When GeoTag is launched the map will
-load to the last saved location using the last map style selected.
-
-You may cut or copy location information from a single image and then paste
-that information into one or more images.  If you make an error you can
-undo/redo your changes. You can undo all changes to all images by selecting
-"Discard changes" from the "File" menu.  All Undo/Redo information is cleared
-once changes are discarded or saved.
-
-The original versions of images that have been updated are saved are in a
-backup folder.  The backup folder may be changed using GeoTag Settings.
-The first time GeoTag is run it will prompt you to select a backup folder.
-Images updates can not be saved until a backup folder is selected or backups
-are disabled (not recommended).
-
-Cut, Copy, Paste, Delete, and Clear Image List can be accessed from
-a pop up menu by right clicking on an entry in the list.
-
-### Build Instructions for developers
-
-* Get current sources from github -- https://github.com/marchyman/GeoTag
-* GeoTag uses a project.yml file and [xcodegen](https://github.com/yonaskolb/XcodeGen)
-  to generate the GeoTag.xcodeproj bundle. Install and run `xcodegen`.
-* Open the generated project in Xcode
-* ⌘R will build and run, ⌘B to build only
-* UI testing requires odiff -- install with brew
-
-Please report bugs, make requests, etc. [here](https://github.com/marchyman/GeoTag/issues)
+OmniTag is built on [GeoTag]([url](https://github.com/marchyman/GeoTag)) by Marco Hyman. Check it out.
