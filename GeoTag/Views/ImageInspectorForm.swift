@@ -6,8 +6,7 @@ struct ImageInspectorForm: View {
     var image: ImageData
 
     let notice: LocalizedStringKey = """
-        Latitude and Longitude updates will not take effect until the \
-        *return* key is pressed when either field is active.
+        Latitude and Longitude updates are applied as you type.
         """
 
     var body: some View {
@@ -17,6 +16,9 @@ struct ImageInspectorForm: View {
             }
             Section("Location") {
                 LatLonSectionView(image: image)
+            }
+            Section("Camera and Film") {
+                CameraFilmSectionView(image: image)
             }
             Section("Notice") {
                 Text(notice)

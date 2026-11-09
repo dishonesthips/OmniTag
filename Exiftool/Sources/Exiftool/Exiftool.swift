@@ -154,6 +154,8 @@ extension Exiftool {
         }
         let args = [
             "-args", "-c", "%.15f", "-createdate",
+            "-make", "-model", "-lensmodel", "-iso",
+            "-xmp-dc:subject",
             "-gpsstatus", "-gpslatitude", "-gpslongitude",
             "-gpsaltitude", "-xmp:city", "-xmp:state",
             "-xmp:country", "-xmp:countrycode", url.path
@@ -180,6 +182,19 @@ extension Exiftool {
                     case "-CreateDate":
                         // get rid of any trailing parts of a second
                         metadata.dateTimeCreated = String(value.split(separator: ".")[0])
+                    case "-Make":
+                        metadata.cameraMake = String(value)
+                    case "-Model":
+                        metadata.cameraModel = String(value)
+                    case "-LensModel":
+                        metadata.lensModel = String(value)
+                    case "-ISO":
+                        // ExifTool calls EXIF tag 0x8827 "ISO"; the EXIF
+                        // spec name "ISOSpeedRatings" is not a valid
+                        // ExifTool tag name and never matches anything.
+                        metadata.isoSpeedRatings = String(value)
+                    case "-Subject":
+                        metadata.filmStock = String(value)
                     case "-GPSStatus":
                         if useGpsStatus, value.hasSuffix("Void") {
                             gpsStatus = false
@@ -255,6 +270,14 @@ extension Exiftool {
         var stateArg = "-xmp:state="
         var countryArg = "-xmp:country="
         var countryCodeArg = "-xmp:countryCode="
+        let makeArg = "-make=" + (metadata.cameraMake ?? "")
+        let modelArg = "-model=" + (metadata.cameraModel ?? "")
+        let lensArg = "-lensmodel=" + (metadata.lensModel ?? "")
+        // ExifTool's tag name for EXIF ISOSpeedRatings (0x8827) is "ISO".
+        // "-isospeedratings=" is an undefined tag in ExifTool and the
+        // value was silently never written.
+        let isoArg = "-iso=" + (metadata.isoSpeedRatings ?? "")
+        let filmArg = "-xmp-dc:subject=" + (metadata.filmStock ?? "")
 
         // ExifTool GSPDateTime arg storage
         var gpsDArg = "-GPSDateStamp="  // for non XMP files
@@ -291,7 +314,8 @@ extension Exiftool {
             lonArg, lonRefArg,
             eleArg, eleRefArg,
             cityArg, stateArg,
-            countryArg, countryCodeArg
+            countryArg, countryCodeArg,
+            makeArg, modelArg, lensArg, isoArg, filmArg
         ]
 
         // add args to update date/time if present
@@ -353,6 +377,27 @@ extension Exiftool {
             }
         }
         return nil
+    }
+}
+
+// Use the embedded copy of exiftool to update ONLY the camera/film
+// fields in the file referenced by the given URL. An empty value
+// clears the corresponding tag, matching
+// update(image:from:timeZone:).
+
+extension Exiftool {
+    public func updateFilmMetadata(image: URL,
+                                   from metadata: Metadata) async throws {
+        let args = [
+            "-q", "-m", "-overwrite_original_in_place",
+            "-make=" + (metadata.cameraMake ?? ""),
+            "-model=" + (metadata.cameraModel ?? ""),
+            "-lensmodel=" + (metadata.lensModel ?? ""),
+            "-iso=" + (metadata.isoSpeedRatings ?? ""),
+            "-xmp-dc:subject=" + (metadata.filmStock ?? ""),
+            image.path
+        ]
+        try run(args)
     }
 }
 

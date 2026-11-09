@@ -29,6 +29,10 @@ struct GeoTagReducer: Reducer, Sendable {
         case .addressChanged(let selected, let address):
             update(&newState, selected: selected, address: address)
 
+        case .cameraFilmChanged(let ids, let make, let model, let lens, let iso, let film):
+            update(&newState, ids: ids, cameraMake: make, cameraModel: model,
+                   lensModel: lens, isoSpeedRatings: iso, filmStock: film)
+
         case .backupFolderSizeCheck:
             checkBackupFolderSize(&newState)
 
@@ -95,14 +99,17 @@ struct GeoTagReducer: Reducer, Sendable {
         case .linkPairedImages(let disablePairedJpegs):
             newState.linkPairedImages(disablePairedJpegs)
 
-        case .locationChanged(let coords):
-            update(&newState, coords: coords)
+        case .locationChanged(let ids, let coords):
+            update(&newState, ids: ids, coords: coords)
 
         case .locationFromTrack(let updates):
             for entry in updates {
                 update(&newState, id: entry.id,
                        location: entry.coords, elevation: entry.elevation)
             }
+
+        case .locationNearestNeighborRequest:
+            updateLocationNearestNeighbors(&newState)
 
         case .mainWindowChange(let window):
             newState.mainWindow = window
@@ -118,6 +125,9 @@ struct GeoTagReducer: Reducer, Sendable {
         case .newTimestamp(let date, let adjustment):
                 update(&newState, date: date, adjustment: adjustment)
 
+        case .omniTagModeChanged(let mode):
+            newState.omniTagMode = mode
+
         case .openCommand:
             newState.importFiles.toggle()
 
@@ -129,6 +139,12 @@ struct GeoTagReducer: Reducer, Sendable {
 
         case .placeSelection(let place):
             savePlace(&newState, place)
+
+        case .photosMetadataLoaded(let id, let metadata):
+            mergeLoadedMetadata(&newState, id: id, metadata: metadata)
+
+        case .tiffNearestNeighborRequest:
+            updateTiffNearestNeighbors(&newState)
 
         case .quitRequested:
             quitRequested(&newState)

@@ -33,6 +33,13 @@ public struct Metadata: Sendable {
 
     public var readable = true
     public var dateTimeCreated: String?
+    // Standard EXIF camera fields.
+    public var cameraMake: String?
+    public var cameraModel: String?
+    public var lensModel: String?
+    public var isoSpeedRatings: String?
+    // EXIF has no standardized film-stock tag; this is stored as XMP-dc:Subject.
+    public var filmStock: String?
     public var location: Coords?
     public var elevation: Double?
     public var city: String?
@@ -54,6 +61,11 @@ public struct Metadata: Sendable {
         self.source = source
 
         dateTimeCreated = converting.dateTimeCreated
+        cameraMake = converting.cameraMake
+        cameraModel = converting.cameraModel
+        lensModel = converting.lensModel
+        isoSpeedRatings = converting.isoSpeedRatings
+        filmStock = converting.filmStock
         location = converting.location
         elevation = converting.elevation
         city = converting.city
@@ -76,6 +88,11 @@ public struct Metadata: Sendable {
 extension Metadata {
     public mutating func restore(from copy: Metadata) {
         dateTimeCreated = copy.dateTimeCreated
+        cameraMake = copy.cameraMake
+        cameraModel = copy.cameraModel
+        lensModel = copy.lensModel
+        isoSpeedRatings = copy.isoSpeedRatings
+        filmStock = copy.filmStock
         location = copy.location
         elevation = copy.elevation
         city = copy.city
@@ -183,6 +200,11 @@ extension Metadata {
 extension Metadata: Equatable {
     static public func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.dateTimeCreated == rhs.dateTimeCreated
+            && lhs.cameraMake == rhs.cameraMake
+            && lhs.cameraModel == rhs.cameraModel
+            && lhs.lensModel == rhs.lensModel
+            && lhs.isoSpeedRatings == rhs.isoSpeedRatings
+            && lhs.filmStock == rhs.filmStock
             && lhs.location == rhs.location
             && lhs.elevation == rhs.elevation
             && lhs.city == rhs.city

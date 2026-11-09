@@ -12,6 +12,7 @@ enum GeoTagEvent: Equatable {
     case addImage(ImageData)
     case addImages([ImageData])
     case addressChanged(Set<ImageData.ID>, Place)
+    case cameraFilmChanged(Set<ImageData.ID>, String?, String?, String?, String?, String?)
     case backupFolderSizeCheck
     case backupURLChanged(URL?)
     case badGpxFile(String)
@@ -33,16 +34,19 @@ enum GeoTagEvent: Equatable {
     case noBackupNotice
     case initPlaces([Place])
     case linkPairedImages(Bool)
-    case locationChanged(Coords)
+    case locationChanged(Set<ImageData.ID>, Coords)
     case locationFromTrack([LocationHelper.LocationById])
+    case locationNearestNeighborRequest
     case mainWindowChange(NSWindow?)
     case mostSelectedChanged(ImageData.ID)
     case newThumbnail(Image)
     case newTimestamp(Date, TimeInterval)
+    case omniTagModeChanged(OmniTagMode)
     case openCommand
     case openFiles([URL])
     case pasteRequest
     case placeSelection(Place)
+    case photosMetadataLoaded(ImageData.ID, Metadata)
     case quitRequested
     case readTrackLog(String, GpxTrackLog?)
     case removeOldFiles
@@ -57,6 +61,7 @@ enum GeoTagEvent: Equatable {
     case sortOrderChanged([KeyPathComparator<ImageData>])
     case sortUsingCurrentComparator
     case terminateRequest
+    case tiffNearestNeighborRequest
     case textfieldFocusChanged(Bool)
     case timeZoneChanged(TimeZone)
     case toggleLogWindow
@@ -70,6 +75,7 @@ extension GeoTagEvent: CustomStringConvertible {
         case .addImage: "addImage"
         case .addImages: "addImages"
         case .addressChanged: "addressChanged"
+        case .cameraFilmChanged: "cameraFilmChanged"
         case .backupFolderSizeCheck: "backupFolderSizeCheck"
         case .backupURLChanged: "backupURLChanged"
         case .badGpxFile: "badGpxFile"
@@ -93,14 +99,17 @@ extension GeoTagEvent: CustomStringConvertible {
         case .linkPairedImages: "linkPairedImages"
         case .locationChanged: "locationChanged"
         case .locationFromTrack: "locationFromTrack"
+        case .locationNearestNeighborRequest: "locationNearestNeighborRequest"
         case .mainWindowChange: "mainWindowChange"
         case .mostSelectedChanged: "mostSelectedChanged"
         case .newThumbnail: "newThumbnail"
         case .newTimestamp: "newTimestamp"
+        case .omniTagModeChanged: "omniTagModeChanged"
         case .openCommand: "openCommand"
         case .openFiles: "openFiles"
         case .pasteRequest: "pasteRequest"
         case .placeSelection: "placeSelection"
+        case .photosMetadataLoaded: "photosMetadataLoaded"
         case .quitRequested: "quitRequested"
         case .readTrackLog: "readTrackLog"
         case .removeOldFiles: "removeOldFiles"
@@ -115,6 +124,7 @@ extension GeoTagEvent: CustomStringConvertible {
         case .sortOrderChanged: "sortOrderChanged"
         case .sortUsingCurrentComparator: "sortUsingCurrentComparator"
         case .terminateRequest: "terminateRequest"
+        case .tiffNearestNeighborRequest: "tiffNearestNeighborRequest"
         case .textfieldFocusChanged: "textfieldFocusChanged"
         case .timeZoneChanged: "timeZoneChanged"
         case .toggleLogWindow: "toggleLogWindow"
