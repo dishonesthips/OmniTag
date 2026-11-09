@@ -79,4 +79,18 @@ struct ImageDataTests {
         imageData.metadata = copy
         #expect(imageData.fullPath == "unknown")
     }
+
+    @Test(arguments: [
+        ("photo.tif", "TIFF"),
+        ("photo.TIFF", "TIFF"),
+        ("photo.jpg", "JPEG"),
+        ("photo.jpeg", "JPEG"),
+        ("photo", "Unknown")
+    ])
+    func normalizedFileType(name: String, expected: String) {
+        let url = URL(fileURLWithPath: "/tmp/\(name)")
+        let image = ImageData(metadata: Metadata(source: .image(url)),
+                              name: name)
+        #expect(image.fileType == expected)
+    }
 }

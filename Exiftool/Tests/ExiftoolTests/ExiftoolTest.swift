@@ -164,6 +164,11 @@ struct ExiftoolTests {
 struct ExiftoolSerializedTests {
     func makeTestData(_ metadata: inout Metadata) {
         metadata.dateTimeCreated = "2019:03:12 18:47:20"
+        metadata.cameraMake = "Nikon"
+        metadata.cameraModel = "Nikon F6"
+        metadata.lensModel = "50mm f/1.8D"
+        metadata.isoSpeedRatings = "400"
+        metadata.filmStock = "Kodak Portra 400"
         metadata.location = Coords(latitude: 33.123,
                                    longitude: -122.345)
         metadata.elevation = 125.5

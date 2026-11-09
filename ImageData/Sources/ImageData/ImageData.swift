@@ -89,6 +89,12 @@ public struct ImageData: Identifiable, Sendable {
         self.init(metadata: metadata, name: name)
     }
 
+    public init(fromPhotoItem item: PhotosPickerItem, asset: PHAsset?) async {
+        let name = Phototool.name(from: asset)
+        let metadata = await Phototool.metadata(fromPhotoItem: item, asset: asset)
+        self.init(metadata: metadata, name: name)
+    }
+
     // fake data synthesized to allow lookup of images by an ID
     // that no longer exists.
 
@@ -128,6 +134,33 @@ extension ImageData {
         case .copy:
             Self.logger.error("Requested fullPath of metadata copy")
             return "unknown"
+        }
+    }
+}
+
+// A normalized file type label for filtering and display. TIFF and JPEG
+// variants share one category so equivalent extensions can be reviewed
+// together.
+extension ImageData {
+    public var fileType: String {
+        let pathExtension: String
+        switch metadata.source {
+        case .image(let url), .xmp(let url):
+            pathExtension = url.pathExtension
+        case .photos, .copy:
+            pathExtension = URL(fileURLWithPath: name).pathExtension
+        }
+
+        let normalized = pathExtension.uppercased()
+        switch normalized {
+        case "TIF", "TIFF":
+            return "TIFF"
+        case "JPG", "JPEG":
+            return "JPEG"
+        case "":
+            return "Unknown"
+        default:
+            return normalized
         }
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import Metadata
 
 // various image metadata values are displayed in different colors
 // depending upon current state.  The colors used in addition to
@@ -25,6 +26,19 @@ extension ImageData {
     public var locationTextColor: Color {
         if updatable {
             return metadata.location == original?.location
+                ? .primary
+                : .changed
+        }
+        return .secondary
+    }
+
+    /// Color for a camera/film metadata field based on whether it differs
+    /// from the value captured when the image was loaded.
+    public func filmMetadataTextColor(
+        _ keyPath: KeyPath<Metadata, String?>
+    ) -> Color {
+        if updatable {
+            return metadata[keyPath: keyPath] == original?[keyPath: keyPath]
                 ? .primary
                 : .changed
         }

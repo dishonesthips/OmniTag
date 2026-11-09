@@ -54,6 +54,24 @@ public struct Imagetool {
             metadata.dateTimeCreated = dto
         }
 
+        // Read standard camera metadata directly from the image properties.
+        // This path is used for ordinary image files without an XMP sidecar.
+        if let tiffData = imgProps[Self.tiffDictionary]
+            as? [String: AnyObject] {
+            metadata.cameraMake = tiffData[Self.tiffMake] as? String
+            metadata.cameraModel = tiffData[Self.tiffModel] as? String
+        }
+        if let exifData = imgProps[Self.exifDictionary]
+            as? [String: AnyObject] {
+            metadata.lensModel = exifData[Self.exifLensModel] as? String
+            if let iso = exifData[Self.exifISOSpeedRatings] as? NSNumber {
+                metadata.isoSpeedRatings = iso.stringValue
+            } else if let isos = exifData[Self.exifISOSpeedRatings]
+                        as? [NSNumber] {
+                metadata.isoSpeedRatings = isos.map(\.stringValue).joined(separator: ", ")
+            }
+        }
+
         // extract gps info when present
 
         if let gpsData = imgProps[Self.GPSDictionary]
@@ -218,5 +236,10 @@ extension Imagetool {
     static let createThumbnailWithTransform = kCGImageSourceCreateThumbnailWithTransform as String
     static let exifDateTimeOriginal = kCGImagePropertyExifDateTimeOriginal as String
     static let exifDictionary = kCGImagePropertyExifDictionary as String
+    static let exifISOSpeedRatings = kCGImagePropertyExifISOSpeedRatings as String
+    static let exifLensModel = kCGImagePropertyExifLensModel as String
+    static let tiffDictionary = kCGImagePropertyTIFFDictionary as String
+    static let tiffMake = kCGImagePropertyTIFFMake as String
+    static let tiffModel = kCGImagePropertyTIFFModel as String
     static let thumbnailMaxPixelSize = kCGImageSourceThumbnailMaxPixelSize as String
 }
