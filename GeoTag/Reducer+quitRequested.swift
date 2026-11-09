@@ -9,7 +9,7 @@ extension GeoTagReducer {
 
         if state.unsavedChanges {
             state.confirmationMessage = """
-                If you quit GeoTag before saving changes the changes \
+                If you quit \(OmniTagBranding.appName) before saving changes the changes \
                 will be lost.  Are you sure you want to quit?
                 """
             state.confirmationEvent = .terminateRequest

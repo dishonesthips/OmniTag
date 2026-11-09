@@ -15,7 +15,7 @@ struct AdjustTimezoneView: View {
                 .padding(.top)
 
             Text("""
-                When matching images to a GPS track log GeoTag assumes
+                When matching images to a GPS track log \(OmniTagBranding.appName) assumes
                 the time zone of image timestamps to be the same as the
                 local-to-this-computer time zone. If the camera was set to
                 the local time in some other time tone or the time zone has
@@ -23,7 +23,7 @@ struct AdjustTimezoneView: View {
                 value here before matching image timestamps to a track log.
 
                 The time zone is also used to calculate the GPS Date/Time
-                value when saving images (if enabled in GeoTag settings).
+                value when saving images (if enabled in \(OmniTagBranding.appName) settings).
                 GPS Date/Time is always saved using GMT/UTC. The time
                 zone of the image timestamp is required to calculate the
                 proper value.  When no Time Zone is specified the

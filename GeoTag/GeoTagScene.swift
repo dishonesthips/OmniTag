@@ -20,7 +20,7 @@ struct GeoTagScene: Scene {
     let windowHeight = 700.0
 
     var body: some Scene {
-        Window("GeoTag Version Six", id: "main") {
+        Window(OmniTagBranding.windowTitle, id: "main") {
             ContentView()
                 .background(WindowAccessor(window: $mainWindow))
                 .frame(minWidth: windowWidth, minHeight: windowHeight)
@@ -29,15 +29,11 @@ struct GeoTagScene: Scene {
                     store.send(.mainWindowChange(mainWindow), undoable: false)
                 }
                 .task {
-                    if !doNotBackup {
-                        if savedBookmark == Data() {
-                            store.send(.noBackupNotice, undoable: false)
-                        } else {
-                            store.send(.initBackupURL, undoable: false) {
-                                if store.backupURL != nil {
-                                    store.send(.backupFolderSizeCheck,
-                                               undoable: false)
-                                }
+                    if !doNotBackup && savedBookmark != Data() {
+                        store.send(.initBackupURL, undoable: false) {
+                            if store.backupURL != nil {
+                                store.send(.backupFolderSizeCheck,
+                                           undoable: false)
                             }
                         }
                     }
@@ -80,5 +76,5 @@ struct GeoTagScene: Scene {
 
 extension GeoTagScene {
     static var adjustTimeZone = "Change Time Zone"
-    static var showRunLog = "GeoTag Run/Debug Log"
+    static var showRunLog = "\(OmniTagBranding.appName) Run/Debug Log"
 }

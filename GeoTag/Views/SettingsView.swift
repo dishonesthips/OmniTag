@@ -15,7 +15,7 @@ struct SettingsView: View {
     @AppStorage(Self.updateFileModificationTimesKey) var updateFileModificationTimes = false
     @AppStorage(Self.updateGPSTimestampsKey) var updateGPSTimestamps = false
     @AppStorage(Self.addTagsKey) var addTags = false
-    @AppStorage(Self.finderTagKey) var finderTag = "GeoTag"
+    @AppStorage(Self.finderTagKey) var finderTag = OmniTagBranding.appName
     @AppStorage(Self.gpsStatusKey) var gpsStatus = false
 
     @State private var backupURL: URL?
@@ -24,7 +24,7 @@ struct SettingsView: View {
 
     var body: some View {
         VStack {
-            Text("GeoTag Saved Settings")
+            Text("\(OmniTagBranding.appName) Saved Settings")
                 .font(.largeTitle)
                 .padding()
             Form {
@@ -40,7 +40,7 @@ struct SettingsView: View {
                             .padding(.horizontal)
                             .help("""
                             Click on the disclosure indicator to choose a \
-                            folder where GeoTag will place copies of images \
+                            folder where \(OmniTagBranding.appName) will place copies of images \
                             before performing any updates.
                             """)
                             .accessibilityIdentifier(testIDs.pathViewID)
@@ -49,11 +49,11 @@ struct SettingsView: View {
                     Toggle("Disable image backups", isOn: $doNotBackup)
                         .padding([.bottom, .horizontal])
                         .help("""
-                        GeoTag will not place a copy of updated files in your \
+                        \(OmniTagBranding.appName) will not place a copy of updated files in your \
                         selected backup folder if this box is checked. If \
                         there are issues while updates are in progress it \
                         is possible that image files could be corrupted. \
-                        Allowing GeoTag to make a backup before updates \
+                        Allowing \(OmniTagBranding.appName) to make a backup before updates \
                         occur is recommended.
                         """)
                 }
@@ -121,8 +121,7 @@ struct SettingsView: View {
                                 .frame(maxWidth: 48)
                                 .padding(.leading)
                                 .help("""
-                                When matching image timestamps to a GPS track \
-                                log GeoTag will assign locations to images \
+                                When matching image timestamps to a GPS track log \(OmniTagBranding.appName) will assign locations to images \
                                 taken this many minutes before and after the \
                                 log endpoints. The first or last location \
                                 will be used as appropriate.
@@ -149,7 +148,7 @@ struct SettingsView: View {
                         .help("""
                         Checking this box will set file modification time to \
                         be the same as the image creation date/time whenever \
-                        GeoTag updates image metadata with location changes. \
+                        \(OmniTagBranding.appName) updates image metadata with location changes. \
                         If the box is not checked file modification times \
                         will be controlled by the system.
                         """)
@@ -159,13 +158,13 @@ struct SettingsView: View {
                         .padding([.bottom, .horizontal])
                         .help(
                         """
-                        GeoTag can set/update the GPS time and date stamps \
+                        \(OmniTagBranding.appName) can set/update the GPS time and date stamps \
                         when updating locations. These timestamps are the \
                         same as the image create date and time but \
                         relative to GMP/UTC, not the local time. When \
                         setting this option it is important that the \
                         TimeZone (edit menu) is correct for the images \
-                        being saved.  Please see the GeoTag help pages \
+                        being saved.  Please see the \(OmniTagBranding.appName) help pages \
                         for more information on setting the time zone.
                         """)
 
@@ -177,10 +176,10 @@ struct SettingsView: View {
                         A GPSStatus tag may be present to indicate when \
                         location measurement is active. Some cameras may \
                         provide a location yet set the status to Void. \
-                        If GeoTag respects the status it would ignore the \
+                        If \(OmniTagBranding.appName) respects the status it would ignore the \
                         location, treating the image as if no location was \
                         present. This is usually not the desired outcome. \
-                        Turn this option on if you want GeoTag to ignore \
+                        Turn this option on if you want \(OmniTagBranding.appName) to ignore \
                         locations when the GPSStatus is not active.
                         """)
 
@@ -201,13 +200,13 @@ struct SettingsView: View {
                                 .padding(.horizontal)
                                 .onSubmit {
                                     if finderTag.isEmpty {
-                                        finderTag = "GeoTag"
+                                        finderTag = OmniTagBranding.appName
                                     }
                                 }
                                 .help("""
                                 This tag will be added to files when Tag \
                                 updated files is checked. If the tag is empty \
-                                \"GeoTag\" will be used.
+                                \"\(OmniTagBranding.appName)\" will be used.
                                 """)
                         }
                     }
@@ -268,7 +267,7 @@ extension SettingsView {
         @AppStorage(Self.updateFileModificationTimesKey) var updateFileModificationTimes = false
         @AppStorage(Self.updateGPSTimestampsKey) var updateGPSTimestamps = false
         @AppStorage(Self.addTagsKey) var addTags = false
-        @AppStorage(Self.finderTagKey) var finderTag = "GeoTag"
+        @AppStorage(Self.finderTagKey) var finderTag = OmniTagBranding.appName
         @AppStorage(Self.gpsStatusKey) var gpsStatus = false
 
         doNotBackup = false
@@ -282,7 +281,7 @@ extension SettingsView {
         updateFileModificationTimes = false
         updateGPSTimestamps = false
         addTags = false
-        finderTag = "GeoTag"
+        finderTag = OmniTagBranding.appName
         gpsStatus = false
     }
 }

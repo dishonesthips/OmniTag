@@ -29,11 +29,11 @@ struct PhotoLibraryDisabledAlert: ViewModifier {
             } message: {
                 Text("""
                     Access to your Photos Library was denied. If you gave \
-                    access to the program quit and re-launch GeoTag to \
+                    access to the program quit and re-launch \(OmniTagBranding.appName) to \
                     make sure it is using the current state. If that does \
                     not resolve the issue open the Privacy and Security \
                     tab of System Settings and select Photos. Make sure \
-                    GeoTag has full access.
+                    \(OmniTagBranding.appName) has full access.
                     """)
             }
     }
