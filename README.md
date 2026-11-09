@@ -13,4 +13,4 @@ It takes the interface of GeoTag and adds new modes for setting timestamp and ca
 
 ### GeoTag
 
-OmniTag is built on [GeoTag]([url](https://github.com/marchyman/GeoTag)) by Marco Hyman. Check it out.
+OmniTag is built on [GeoTag](https://github.com/marchyman/GeoTag) by Marco Hyman. Check it out.
