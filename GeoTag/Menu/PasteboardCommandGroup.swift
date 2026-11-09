@@ -38,6 +38,7 @@ struct PasteboardCommands: Commands {
                                          to: nil, from: nil)
                     } else {
                         store.send(.pasteRequest) {
+                            guard store.omniTagMode == .location else { return }
                             // remember the current selection
                             guard let id = store.mostSelected else { return }
                             let selected = store.selection
@@ -68,14 +69,13 @@ struct PasteboardCommands: Commands {
                 .disabled(deleteDisabled())
 
                 Button("Select All", systemImage: "character.textbox") {
-                    if store.textfieldActive {
+                    let handledByFocusedControl =
                         NSApp.sendAction(#selector(NSText.selectAll(_:)),
                                          to: nil, from: nil)
-                    } else {
+                    if !handledByFocusedControl && !store.textfieldActive {
                         store.send(.selectAllRequest)
                     }
                 }
-                .keyboardShortcut("a")
                 .disabled(selectAllDisabled())
             }
 
@@ -127,10 +127,17 @@ extension PasteboardCommands {
         if store.textfieldActive {
             return false
         }
-        if let id = store.mostSelected, store[id].metadata.location != nil {
-            return false
+        guard let id = store.mostSelected else { return true }
+        switch store.omniTagMode {
+        case .location:
+            return store[id].metadata.location == nil
+        case .time:
+            return store[id].metadata.timestamp.isEmpty
+        case .film:
+            let metadata = store[id].metadata
+            return metadata.cameraMake == nil && metadata.cameraModel == nil &&
+                metadata.isoSpeedRatings == nil && metadata.filmStock == nil
         }
-        return true
     }
 
     private func pasteDisabled() -> Bool {
@@ -138,12 +145,17 @@ extension PasteboardCommands {
             return false
         }
         let pb = NSPasteboard.general
-        if let pasteVal = pb.string(forType: .string),
-           ImageData.decodeStringRep(value: pasteVal) != nil,
-           store.mostSelected != nil {
-            return false
+        guard store.mostSelected != nil,
+              let pasteVal = pb.string(forType: .string) else { return true }
+        switch store.omniTagMode {
+        case .location:
+            return ImageData.decodeStringRep(value: pasteVal) == nil
+        case .time:
+            return !validTimestamp(pasteVal)
+        case .film:
+            return (try? JSONDecoder().decode(FilmClipboardPayload.self,
+                                               from: Data(pasteVal.utf8))) == nil
         }
-        return true
     }
 
     private func deleteDisabled() -> Bool {
@@ -196,9 +208,33 @@ extension PasteboardCommands {
         } else if let id = store.mostSelected {
             let pb = NSPasteboard.general
             pb.clearContents()
-            pb.setString(store[id].stringRepresentation,
-                         forType: .string)
+            let value: String
+            switch store.omniTagMode {
+            case .location:
+                value = store[id].stringRepresentation
+            case .time:
+                value = store[id].metadata.timestamp
+            case .film:
+                let metadata = store[id].metadata
+                let payload = FilmClipboardPayload(
+                    make: metadata.cameraMake,
+                    model: metadata.cameraModel,
+                    iso: metadata.isoSpeedRatings,
+                    filmStock: metadata.filmStock)
+                guard let data = try? JSONEncoder().encode(payload),
+                      let encoded = String(data: data, encoding: .utf8) else {
+                    return
+                }
+                value = encoded
+            }
+            pb.setString(value, forType: .string)
         }
+    }
+
+    private func validTimestamp(_ value: String) -> Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = Metadata.dateFormat
+        return formatter.date(from: value) != nil
     }
 }
 

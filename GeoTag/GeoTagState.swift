@@ -45,6 +45,8 @@ struct GeoTagState {
         return nil
     }
     var sortOrder = [KeyPathComparator(\ImageData.name)]
+    var omniTagMode: OmniTagMode = .location
+    var loadedFilmMetadata: Set<ImageData.ID> = []
     var unsavedChanges = false
 
     // Search exists for items in the Image Table and locations

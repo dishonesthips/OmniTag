@@ -58,5 +58,6 @@ extension GeoTagReducer {
         }
         state.scopedURLs = []
         state.imageData = []
+        state.loadedFilmMetadata = []
     }
 }
