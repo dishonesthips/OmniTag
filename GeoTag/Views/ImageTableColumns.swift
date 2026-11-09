@@ -57,3 +57,14 @@ struct LongitudeView: View {
             .help(image.metadata.formattedElevation)
     }
 }
+
+struct FilmMetadataView: View {
+    let value: String?
+    let color: Color
+
+    var body: some View {
+        Text(value ?? "")
+            .truncationMode(.middle)
+            .foregroundColor(color)
+    }
+}

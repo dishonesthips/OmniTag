@@ -44,7 +44,6 @@ extension PhotoLibrary {
 extension PhotoLibrary {
     func addPhotos(from items: [PhotosPickerItem],
                    store: GeoTagStore) async {
-        // Self.logger.debug("\(#function)")
         var dupsFound = false
         for item in items {
             if let id = item.itemIdentifier {
@@ -54,10 +53,14 @@ extension PhotoLibrary {
                     continue
                 }
                 let asset = await Phototool.assets(for: id)
+                // PHAsset supplies the lightweight date/location metadata here.
+                // Camera/film metadata is loaded lazily by the inspector so an
+                // import never downloads every selected Photos original.
                 let imageData = ImageData(from: item, asset: asset)
                 await store.send(.addImage(imageData))
             }
         }
+
         if dupsFound {
             await store.send(.duplicateImages, undoable: false)
         }

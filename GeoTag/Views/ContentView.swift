@@ -84,6 +84,12 @@ struct ContentView: View {
         .toolbar {
             PhotoPickerView()
                 .accessibilityIdentifier(testIDs.photoPickerViewID)
+            Button("Clear all photos", systemImage: "rectangle.stack.badge.minus") {
+                store.send(.clearImagesRequest,
+                           description: "clear all photos")
+            }
+            .disabled(store.imageData.isEmpty || store.unsavedChanges)
+            .help("Remove all photos from the working list")
             InspectorButtonView(presented: $inspectorPresented)
                 .accessibilityIdentifier(testIDs.inspectorButtonViewID)
         }

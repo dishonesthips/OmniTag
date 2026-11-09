@@ -76,6 +76,16 @@ struct ContextMenuView: View {
         Divider()
 
         Group {
+            Button("Copy File Name") {
+                handleContext()
+                if let id = store.mostSelected {
+                    let pb = NSPasteboard.general
+                    pb.clearContents()
+                    pb.setString(store[id].name, forType: .string)
+                }
+            }
+            .disabled(context == nil && store.mostSelected == nil)
+
             Button("Show In Finder") {
                 handleContext()
                 showInFinder()
