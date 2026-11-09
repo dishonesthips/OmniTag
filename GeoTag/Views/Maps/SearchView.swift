@@ -106,7 +106,7 @@ struct SearchView: View {
 
     private func locationChanged(location: Coordinate) {
         if let id = store.mostSelected {
-            store.send(.locationChanged(location.coord2D),
+            store.send(.locationChanged(store.selection, location.coord2D),
                        description: "search selection") {
                 // remember the current selection
                 let selected = store.selection

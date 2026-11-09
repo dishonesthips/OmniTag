@@ -12,6 +12,12 @@ struct LatLonSectionView: View {
 
     @State private var latitude: Double?
     @State private var longitude: Double?
+    @State private var loadedLatitude: Double?
+    @State private var loadedLongitude: Double?
+    @State private var editTarget: Set<ImageData.ID> = []
+    @State private var editImageID: ImageData.ID?
+    @State private var undoGroupOpen = false
+    @State private var geocodeTask: Task<Void, Never>?
     @FocusState private var isFocused: Bool
 
     @AppStorage(Coords.coordFormatKey) var coordFormat: CoordFormat = .deg
@@ -65,24 +71,8 @@ struct LatLonSectionView: View {
             isFocused = false
         }
         .onSubmit {
-            if validateLocation() {
-                if let latitude, let longitude {
-                    store.send(.locationChanged(Coords(latitude: latitude,
-                                                       longitude: longitude)),
-                               description: "update location") {
-                        let selected = store.selection
-                        Task {
-                            let address =
-                            await ReverseLocationFinder.reverseGeocode(store: store,
-                                                                       id: image.id)
-                            if let address {
-                                store.send(.addressChanged(selected, address),
-                                           undoable: false)
-                            }
-                        }
-                    }
-                    isFocused = false
-                }
+            if commitLocation() {
+                isFocused = false
             }
         }
         .onChange(of: coordFormat) {
@@ -90,10 +80,23 @@ struct LatLonSectionView: View {
         }
         .onChange(of: isFocused) {
             store.send(.textfieldFocusChanged(isFocused), undoable: false)
+            if !isFocused {
+                commitLocation()
+            }
         }
-        .task(id: image.metadata.location) {
+        .onChange(of: image.id) {
+            // Switching images: lock in typed coordinates before
+            // the fields reload with the new image's values.
+            commitLocation()
             loadCoordinates()
         }
+        .task(id: image.metadata.location) {
+            commitLocation()
+            loadCoordinates()
+        }
+        .onChange(of: latitude) { liveCommitLocation() }
+        .onChange(of: longitude) { liveCommitLocation() }
+        .onDisappear { closeUndoGroup() }
     }
 
     // set state variables from image location
@@ -106,6 +109,10 @@ struct LatLonSectionView: View {
             latitude = nil
             longitude = nil
         }
+        loadedLatitude = latitude
+        loadedLongitude = longitude
+        editTarget = store.selection
+        editImageID = image.id
     }
 
     // check that latitude and longitude are non-nil and in appropriate range
@@ -119,6 +126,102 @@ struct LatLonSectionView: View {
             return true
         }
         return false
+    }
+
+    // Send the typed coordinates if they form a complete, valid,
+    // changed pair, addressed to the images they were typed for —
+    // the event carries the target IDs explicitly, so a selection
+    // change in the meantime can't redirect the coordinates onto
+    // other images. Returns the images they were sent to. Sends
+    // within one editing session form a single undo group.
+    private func sendLocationChange() -> Set<ImageData.ID>? {
+        guard validateLocation(),
+              let latitude, let longitude,
+              latitude != loadedLatitude || longitude != loadedLongitude
+        else { return nil }
+        let targets = editTarget.isEmpty ? store.selection : editTarget
+        guard !targets.isEmpty else { return nil }
+        if !undoGroupOpen {
+            store.beginUndoGroup(description: "update location")
+            undoGroupOpen = true
+        }
+        loadedLatitude = latitude
+        loadedLongitude = longitude
+        store.send(.locationChanged(targets,
+                                    Coords(latitude: latitude,
+                                           longitude: longitude)),
+                   description: "update location")
+        return targets
+    }
+
+    // Live transfer while typing: the table updates as soon as a
+    // valid pair is typed. The reverse geocode is debounced so
+    // it runs once the coordinates settle, not on every keystroke.
+    private func liveCommitLocation() {
+        if let targets = sendLocationChange() {
+            scheduleGeocode(targets: targets)
+        }
+    }
+
+    // Settle the edit (Return, focus loss, image switch): flush
+    // any pending pair, close the undo group, and geocode right
+    // away instead of waiting for the debounce.
+    @discardableResult
+    private func commitLocation() -> Bool {
+        let hadSession = undoGroupOpen
+        let targets = sendLocationChange()
+        closeUndoGroup()
+        geocodeTask?.cancel()
+        geocodeTask = nil
+        if let targets {
+            geocodeNow(targets: targets)
+            return true
+        }
+        if hadSession {
+            let sessionTargets = editTarget.isEmpty
+                ? store.selection : editTarget
+            if !sessionTargets.isEmpty {
+                geocodeNow(targets: sessionTargets)
+            }
+            return true
+        }
+        return false
+    }
+
+    private func scheduleGeocode(targets: Set<ImageData.ID>) {
+        geocodeTask?.cancel()
+        let anchorID = editImageID ?? image.id
+        geocodeTask = Task {
+            try? await Task.sleep(for: .milliseconds(900))
+            guard !Task.isCancelled else { return }
+            let address =
+            await ReverseLocationFinder.reverseGeocode(store: store,
+                                                       id: anchorID)
+            if let address {
+                store.send(.addressChanged(targets, address),
+                           undoable: false)
+            }
+        }
+    }
+
+    private func geocodeNow(targets: Set<ImageData.ID>) {
+        let anchorID = editImageID ?? image.id
+        Task {
+            let address =
+            await ReverseLocationFinder.reverseGeocode(store: store,
+                                                       id: anchorID)
+            if let address {
+                store.send(.addressChanged(targets, address),
+                           undoable: false)
+            }
+        }
+    }
+
+    private func closeUndoGroup() {
+        if undoGroupOpen {
+            store.endUndoGroup()
+            undoGroupOpen = false
+        }
     }
 }
 

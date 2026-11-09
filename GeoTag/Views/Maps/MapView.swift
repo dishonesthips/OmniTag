@@ -35,7 +35,7 @@ struct MapView: View {
             mapFocus.wrappedValue = nil  // get rid of any search views
             if let id = store.mostSelected {
                 if let loc = proxy.convert(position.location, from: .local) {
-                    store.send(.locationChanged(loc),
+                    store.send(.locationChanged(store.selection, loc),
                                description: "map click") {
                         // remember the current selection
                         let selected = store.selection
