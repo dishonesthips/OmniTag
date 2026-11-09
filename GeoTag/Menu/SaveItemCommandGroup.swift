@@ -1,3 +1,5 @@
+import ImageData
+import Metadata
 import SwiftUI
 import UDF
 
@@ -16,6 +18,18 @@ struct SaveItemCommands: Commands {
             }
             .keyboardShortcut("s")
             .disabled(saveDisabled())
+
+            Button("Export selected Photos with metadata…",
+                   systemImage: "square.and.arrow.up") {
+                Task { await SaveHelper.exportSelectedPhotos(store) }
+            }
+            .disabled(!hasSelectedPhotos())
+
+            Button("Add tagged copies to Photos…",
+                   systemImage: "photo.badge.plus") {
+                Task { await SaveHelper.addTaggedCopiesToPhotos(store) }
+            }
+            .disabled(!hasSelectedPhotos())
 
             Button("Discard changes", systemImage: "mappin.slash") {
                 store.send(.discardChangesRequest,
@@ -57,5 +71,14 @@ extension SaveItemCommands {
 
     private func clearDisabled() -> Bool {
         return store.imageData.isEmpty || store.unsavedChanges
+    }
+
+    private func hasSelectedPhotos() -> Bool {
+        store.selection.contains { id in
+            if case MetadataSource.photos(_, _) = store[id].metadata.source {
+                return true
+            }
+            return false
+        }
     }
 }
